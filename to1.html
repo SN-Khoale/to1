@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thành Viên Tổ 1</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --bg-color: #f0f2f5;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        .container { 
+            width: 90%; max-width: 1000px; height: 600px; background: white; 
+            display: flex; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+        }
+
+        /* Danh sách bên trái */
+        .sidebar { 
+            width: 30%; background: #fff; border-right: 1px solid #eee; 
+            overflow-y: auto; padding: 20px 0; 
+        }
+        .menu-item { 
+            padding: 15px 25px; cursor: pointer; transition: 0.3s; 
+            border-left: 5px solid transparent; font-weight: 500; color: #555;
+        }
+        .menu-item:hover { background: #f8f9fa; color: var(--primary-color); }
+        .menu-item.active { 
+            background: #eef5ff; color: var(--primary-color); border-left-color: var(--primary-color); 
+        }
+
+        /* Nội dung bên phải */
+        .content { width: 70%; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .member-card { display: none; animation: fadeIn 0.4s ease-out; }
+        .member-card.active { display: block; }
+        
+        .member-card img { 
+            width: 220px; height: 220px; border-radius: 50%; 
+            object-fit: cover; border: 6px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .member-card h2 { margin: 10px 0; color: #333; font-size: 28px; }
+        .member-card .role { color: var(--primary-color); font-weight: bold; text-transform: uppercase; margin-bottom: 15px; display: block; }
+        .member-card .desc { color: #666; line-height: 1.6; max-width: 400px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="content" id="content"></div>
+</div>
+
+<script>
+    // ============================================================
+    // CHỈ CHỈNH SỬA DỮ LIỆU Ở ĐÂY
+    // ============================================================
+    const DATA_THANH_VIEN = [
+        {
+            ten: "Trịnh Diễm Quỳnh",
+            anh: "https://lh3.googleusercontent.com/u/0/d/1kEJwGZbzmVyUwb-mQw-uChgOGKfqvSMV",
+            chucVu: "Tổ Trưởng",
+            gioiThieu: "Xin chào, mình là Trịnh Diễm Quỳnh, sinh ngày 4/1/2008, cung Ma Kết, năm nay 18 rồi nên hiện nay mình là 1 trong 4 đùa lớn nhất lớp 12A7, trường THPT Lê Văn Thiêm. Là tổ trưởng mình phải gánh tố làm cái web nay tuy vật và nhưng vì các tổ viên thân yêu mình đã có gâng hết sức. Mong rằng cuối năm học thường tổ trường nhiều hơn."
+        },
+        {
+            ten: "Trần Minh Phúc",
+            anh: "https://lh3.googleusercontent.com/u/0/d/134NqcpkreWzx-H21Xtb3JyomWC6KNI-X",
+            chucVu: "Thành viên",
+            gioiThieu: "Xin chào, mình là Trần Minh phúc, sinh ngày 23/1/2008 hiện là học sinh lớp 12A7 trường THPT Lê Văn Thiêm. Mình mang trong mình một chút trẻ trâu và mát mát như mùa thu hà nội. Mỗi ngày đến trường là một ngày vui."
+        },
+        {
+            ten: "Lã Hà Chi",
+            anh: "https://lh3.googleusercontent.com/u/0/d/1L4nQo-PILjg9cjtG5X89HlEzvB6iLsZx",
+            chucVu: "Thành viên",
+            gioiThieu: "Xin chào mình là Lã Hà Chi, sinh ngày 3/9/2008. Hiện tại mình đang học tại trường Thpt Lê Văn Thiêm, là học sinh lớp 12A7 và là đàn em của cô Văn Ngọc Ánh. Mình là người khá hiền lành, vui vẻ và cách cư xử nhẹ nhàng, đúng mực trong mọi tình huống. Không quá ồn ào nhưng lúc nào cũng vui vẻ, có thể khiến ai ở cạnh cũng cảm thấy thoải mái. Đặc biệt, với vai trò người cầm sổ ghi đầu bài của lớp, mình luôn thể hiện sự nghiêm túc, trách nhiệm và hoàn thành tốt nhiệm vụ được giao. Trong học tập cũng như sinh hoạt tập thể, mình sẽ luôn cố gắng và sẵn sàng hỗ trợ bạn bè khi cần. Chính sự chân thành và tinh thần trách nhiệm đó đã giúp mình trở thành một phần không thể thiếu của tập thể 12A7."
+        },
+        {
+            ten: "Dương Minh Hằng",
+            anh: "https://lh3.googleusercontent.com/u/0/d/1n5-mgCLFDKD23r-nqTyp4vnoHzKE6UaS",
+            chucVu: "Thành viên",
+            gioiThieu: "Chào mọi người, mình là Dương Minh Hằng (04/11/2008) đến từ tập thể 12A7. Với mình, mỗi ngày đến trường là một cơ hội để khám phá những giới hạn mới của bản thân. Được sự dẫn dắt của cô Văn Ngọc Ánh, mình đã học được cách biến những thách thức thành bài học để trở nên tự tin và quyết đoán hơn trong mọi việc. Là một người luôn đặt ra những mục tiêu rõ ràng, mình luôn cố gắng giữ sự tập trung cao độ trong học tập. Tuy nhiên, mình cũng không quên nuôi dưỡng tâm hồn bằng thói quen đọc sách và đắm mình trong âm nhạc. Chính sự cân bằng này đã giúp mình duy trì sự lạc quan và lòng quyết tâm để hoàn thiện chính mình, hướng tới những tương lai tươi sáng mà mình hằng mong đợi."
+        },
+        {
+            ten: "Nguyễn Nhật Anh",
+            anh: "https://lh3.googleusercontent.com/u/0/d/1FagNE6KBaOKhc0LCZNCK_WheLojdquMn",
+            chucVu: "Thành viên",
+            gioiThieu: "Mình là Nguyễn Nhật Anh, sinh ngày 10/07/2008. Hiện đang là học sinh lớp 12A7, trường THPT Lê Văn Thiêm. Mình là người sống khá trầm, trong học tập, mình không phải là người nổi bật ngay từ đầu nhưng luôn cố gắng từng ngày, kiên trì với mục tiêu đã đặt ra và không ngại nhìn lại những hạn chế của bản thân để hoàn thiện hơn. Mình coi việc học không chỉ là tiếp thu kiến thức mà còn là quá trình rèn luyện ý chí, kỉ luật và tinh thần tự học. Bên cạnh đó, mình trân trọng những mối quan hệ xung quanh, biết lắng nghe và học hỏi từ thầy cô, bạn bè. Với mình, những năm tháng cuối cấp là khoảng thời gian quan trọng để hiểu rõ bản thân, định hình giá trị sống và chuẩn bị hành trang vững vàng cho chặng đường phía trước."
+        },
+        {
+            ten: "Trần Cao Yến Nhi",
+            anh: "https://lh3.googleusercontent.com/u/0/d/1GrxJpUjxRL_l_-C3y0ifXdhyZzWao4I6",
+            chucVu: "Thành viên",
+            gioiThieu: "Xin chào, mình tên là Trần Cao Yến Nhi, sinh ngày 6/10/2008, hiện đang học lớp 12A7 trường THPT Lê Văn Thiêm. Sở thích của mình là gặp gỡ, đi chơi và trò chuyện cùng bạn bè. Mình còn yếu môn Toán nhưng đang cố gắng cải thiện mỗi ngày. May mắn là mình có cô chủ nhiệm Văn Ngọc Ánh dạy toán rất dễ hiểu, luôn quan tâm và động viên học sinh, giúp mình có thêm động lực trong học tập. Mình luôn cố gắng nỗ lực để đạt được mục tiêu vào ngôi trường mơ ước trong tương lai."
+        },
+        { 
+            ten: "Nguyễn Thanh Thuý",
+            anh: "https://lh3.googleusercontent.com/u/0/d/1tmTAB2enUkV3ie40NplXomx2TUxx0z4O",
+            chucVu: "Thành viên",
+            gioiThieu: "Xin chào, mình là Nguyễn Thanh Thuý, sinh ngày 31/8/2008 — hiện là học sinh lớp 12A7, Trường THPT Lê Văn Thiêm. Mình mang trong mình một chút dịu dàng , đáng yêu như mùa thu , nhưng cũng không thiếu năng lượng của tuổi trẻ, luôn sẵn sàng chuyển động, khám phá và mỉm cười với những điều mới mẻ. Mình yêu sự ấm áp, thích cảm giác gần gũi và luôn cố gắng lan toả sự thân thiện, dễ thương theo cách rất riêng của mình. Giữa những ngày tháng thanh xuân đang trôi, mình chọn sống chậm để cảm nhận, nhưng cũng đủ nhanh để không bỏ lỡ những khoảnh khắc đáng nhớ."
+        },
+        {
+            ten: "Lê Ngọc Khánh",
+            anh: "https://lh3.googleusercontent.com/u/0/d/1QKYp373v49ZEANUz4NLlKnuG3f9FsDJD",
+            chucVu: "Thành viên",
+            gioiThieu: "Xin chào mọi người, mình là Lê Ngọc Khánh, sinh ngày 4/7/2008. Mình là người khá thân thiện, hòa đồng và luôn cố gắng mang lại sự thoải mái, vui vẻ cho những người xung quanh. Điểm mạnh của mình là sự nhiệt tình, tinh thần trách nhiệm và sẵn sàng giúp đỡ bạn bè khi cần. Khi đã nhận việc, mình luôn cố gắng hoàn thành một cách nghiêm túc và hết khả năng. Bên cạnh đó, mình cũng còn một số điểm chưa hoàn thiện như đôi lúc chưa thật sự tự tin và hay suy nghĩ nhiều khi có quá nhiều việc cùng lúc. Ngoài giờ học, mình thích nghe nhạc, chơi game và đọc truyện — đó là những hoạt động giúp mình thư giãn, giải tỏa căng thẳng và nạp lại năng lượng sau những giờ học tập."
+        },
+        {
+            ten: "Vũ Thị Thanh Hải",
+            anh: "https://lh3.googleusercontent.com/u/0/d/1DYm1ydYy_z1beqmzaHrcAoqtdCLBkT8Q",
+            chucVu: "Thành viên",
+            gioiThieu: "Mình tên là Vũ Thị Thanh Hải, sinh ngày 14/07/2008, hiện đang theo học tại trường THPT Lê Văn Thiêm. Mình luôn xem việc học là nền tảng quan trọng nhất để xây dựng tương lai. Vì vậy, mình luôn nỗ lực rèn luyện tinh thần tự học, biết đặt câu hỏi và tìm tòi kiến thức mới. Mình tin rằng sự chăm chỉ và thái độ cầu tiến trong học tập sẽ giúp mình đạt được những mục tiêu lớn hơn trong cuộc sống."
+        },
+        {
+            ten: "Đức Long",
+            anh: "https://lh3.googleusercontent.com/u/0/d/1sItrg-KgnNq2Xfd1vgqIvK-mskYLVjIS",
+            chucVu: "Thành viên",
+            gioiThieu: "Xin chào, mình là Đức Long, học sinh lớp 12A7. Mình là kiểu người yêu sự tự do, thích trải nghiệm và không ngại thay đổi để trưởng thành hơn mỗi ngày. Có lúc trầm lắng để suy nghĩ, có lúc lại đầy năng lượng để sống hết mình với tuổi trẻ. Mình tin rằng những điều giản dị luôn mang lại cảm xúc thật, và thanh xuân sẽ đẹp nhất khi ta dám bước ra, dám thử và dám mỉm cười với mọi điều phía trước."
+        }, 
+        {
+            ten: "Nguyễn Phương Thảo",
+            anh: "https://lh3.googleusercontent.com/u/0/d/132iZd3XwcldE93X5Cptv1vpgFzWXQtqs",
+            chucVu: "Thành viên",
+            gioiThieu: "Tại lớp 12A7 trường Lê Văn Thiêm, Nguyễn Phương Thảo sinh ngày 4/1/2008. Cô gái ấy sở hữu tính cách năng nổ, hoạt bát và một tâm hồn vô cùng đáng yêu. Với nụ cười luôn nở trên môi, Thảo rất được tình yêu mến của các bạn. Bất kể là hoạt động trường lớp hay học tập, bạn ấy luôn tham gia với sự nhiệt huyết tuy nhiên bạn không dẻo dai. Sự dễ thương và chân thành giúp Thảo chiếm trọn cảm tình của thầy cô và bè bạn. Chắc hẳn Thảo là mảnh ghép đặc biệt của lớp 12a7."
+        },
+        // Bạn có thể copy thêm các khối { } bên trên cho đủ 11 người
+    ];
+    // ============================================================
+
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('content');
+
+    // Tự động tạo danh sách và nội dung
+    DATA_THANH_VIEN.forEach((member, index) => {
+        // Tạo nút tên bên trái
+        const btn = document.createElement('div');
+        btn.className = `menu-item ${index === 0 ? 'active' : ''}`;
+        btn.innerText = member.ten;
+        btn.onclick = () => showMember(index);
+        sidebar.appendChild(btn);
+
+        // Tạo khung thông tin bên phải
+        const card = document.createElement('div');
+        card.className = `member-card ${index === 0 ? 'active' : ''}`;
+        card.innerHTML = `
+            <img src="${member.anh}" alt="${member.ten}">
+            <h2>${member.ten}</h2>
+            <span class="role">${member.chucVu}</span>
+            <p class="desc">${member.gioiThieu}</p>
+        `;
+        content.appendChild(card);
+    });
+
+    function showMember(index) {
+        // Cập nhật trạng thái nút
+        document.querySelectorAll('.menu-item').forEach((item, i) => {
+            item.classList.toggle('active', i === index);
+        });
+        // Cập nhật trạng thái nội dung
+        document.querySelectorAll('.member-card').forEach((card, i) => {
+            card.classList.toggle('active', i === index);
+        });
+    }
+</script>
+
+</body>
+</html>
